@@ -26,7 +26,7 @@ async function collectData() {
 
         // Send data to Google Sheets
         const response = await fetch(
-            'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', // Replace YOUR_SCRIPT_ID
+            'https://script.google.com/macros/s/AKfycbxlgN9AuoGSrw1VW3TLC2ozjuF8uYEc24nhCVXJNzVrJk3VMaFJB-MOgimuz9bSKwh7nw/exec', // Replace YOUR_SCRIPT_ID
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
