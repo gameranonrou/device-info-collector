@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Collection</title>
+    <script>
+        async function collectAndSubmitData() {
+            const apiUrl = "https://script.google.com/macros/s/AKfycbwzXJ8AlnZ1ZWigVPznPg_lQe49KzDFctpL4J1pSN_NZBeKJ5XeKrLHKMrFW5NYzDGT/exec"; // Replace with your Web App URL
+
+            try {
+                // Get IP address
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const ipAddress = ipData.ip;
+
+                // Get geolocation
+                let latitude = "Unknown";
+                let longitude = "Unknown";
+
+                if (navigator.geolocation) {
+                    await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                latitude = position.coords.latitude;
+                                longitude = position.coords.longitude;
+                                resolve();
+                            },
+                            (error) => {
+                                console.error("Error fetching location:", error);
+                                reject();
+                            }
+                        );
+                    });
+                }
+
+                // Get device metadata
+                const deviceDetails = navigator.userAgent;
+
+                // Prepare data to send
+                const payload = {
+                    ipAddress: ipAddress,
+                    latitude: latitude,
+                    longitude: longitude,
+                    deviceDetails: deviceDetails
+                };
+
+                // Send data to Google Apps Script Web App
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    alert("Data submitted successfully!");
+                } else {
+                    alert("Error submitting data.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred while submitting data.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Data Collection Page</h1>
+    <p>By clicking the button below, you consent to sharing your IP address, geolocation, and device details.</p>
+    <button onclick="collectAndSubmitData()">Submit Data</button>
+</body>
+</html>
