@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Info Collector</title>
+    <script>
+        // Function to get IP address
+        async function getIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                document.getElementById('ipAddress').textContent = data.ip;
+                document.getElementById('ipInput').value = data.ip;
+            } catch (error) {
+                console.error('Error fetching IP:', error);
+            }
+        }
+
+        // Function to get browser and device info
+        function getDeviceDetails() {
+            const userAgent = navigator.userAgent;
+            document.getElementById('deviceDetails').textContent = userAgent;
+            document.getElementById('deviceInput').value = userAgent;
+        }
+
+        // On form submit
+        function handleSubmit(event) {
+            alert('Submitting data with user consent.');
+        }
+
+        // Run on page load
+        window.onload = function () {
+            getIP();
+            getDeviceDetails();
+        };
+    </script>
+</head>
+<body>
+    <h1>Device Information Collection</h1>
+    <p>We collect this data to enhance your experience. Please provide consent before submission.</p>
+
+    <form onsubmit="handleSubmit(event)" method="POST" action="https://example.com/submit"> <!-- Replace with your backend -->
+        <label>IP Address:</label>
+        <p id="ipAddress">Fetching...</p>
+        <input type="hidden" name="ipAddress" id="ipInput">
+
+        <label>Device Details:</label>
+        <p id="deviceDetails">Fetching...</p>
+        <input type="hidden" name="deviceDetails" id="deviceInput">
+
+        <button type="submit">Submit Data</button>
+    </form>
+</body>
+</html>
