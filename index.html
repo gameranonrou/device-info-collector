@@ -72,38 +72,47 @@
 
         // Generate a device fingerprint
         function generateFingerprint(deviceDetails, latitude, longitude, ipAddress) {
-            const screenResolution = `${screen.width}x${screen.height}`;
-            const colorDepth = screen.colorDepth;
-            const deviceMemory = navigator.deviceMemory || "Unknown";
-            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const screenResolution = `${screen.width}x${screen.height}`;
+    const colorDepth = screen.colorDepth;
+    const deviceMemory = navigator.deviceMemory || "Unknown";
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-            // Get GPU details using WebGL
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl');
-            const rendererInfo = gl.getExtension('WEBGL_debug_renderer_info');
-            const gpu = rendererInfo ? gl.getParameter(rendererInfo.UNMASKED_RENDERER_WEBGL) : "Unknown";
+    // Create a canvas element
+    const canvas = document.createElement('canvas');
 
-            // Combine all collected data into a single string
-            const data = [
-                deviceDetails,
-                latitude,
-                longitude,
-                ipAddress,
-                screenResolution,
-                colorDepth,
-                deviceMemory,
-                timeZone,
-                gpu,
-            ].join("|");
+    // Get WebGL context for GPU details
+    const gl = canvas.getContext('webgl');
+    const rendererInfo = gl ? gl.getExtension('WEBGL_debug_renderer_info') : null;
+    const gpu = rendererInfo ? gl.getParameter(rendererInfo.UNMASKED_RENDERER_WEBGL) : "Unknown";
 
-            // Create a unique hash using canvas
-            const context = canvas.getContext("2d");
-            context.textBaseline = "top";
-            context.font = "14px 'Arial'";
-            context.fillText(data, 10, 50);
+    // Combine all collected data into a single string
+    const data = [
+        deviceDetails,
+        latitude,
+        longitude,
+        ipAddress,
+        screenResolution,
+        colorDepth,
+        deviceMemory,
+        timeZone,
+        gpu,
+    ].join("|");
 
-            return canvas.toDataURL(); // Generates a base64 hash
-        }
+    // Get 2D context for canvas fingerprinting
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+        console.warn("Canvas 2D context is not supported by this browser.");
+        return "Canvas2DNotSupported";
+    }
+
+    context.textBaseline = "top";
+    context.font = "14px 'Arial'";
+    context.fillText(data, 10, 50);
+
+    return canvas.toDataURL(); // Generates a base64 hash
+}
+        
     </script>
 </head>
 <body>
