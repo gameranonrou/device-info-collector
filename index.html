@@ -5,70 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Record User Data</title>
     <script>
-        async function submitData() {
-            const apiUrl = "https://script.google.com/macros/s/AKfycbyuTvncJwoU68RR84z334E1urkC_h-nC4sQi4lVkGog646T_ZPbOzbDvra96qGsGn2_/exec"; // Replace with your Web App URL
+       async function submitData() {
+    const apiUrl = "https://script.google.com/macros/s/AKfycbxtBdmZF8rm4Jjiw3TdsSjzHPUF5cdnqmNYsTfFFCewCyuLeDhu2DZpxRa6pm5i2VY5/exec"; // Replace with your Web App URL
 
-            try {
-                // Collect input values
-                const name = document.getElementById('name').value;
-                const phoneNumber = document.getElementById('phoneNumber').value;
+    try {
+        const name = document.getElementById('name').value;
+        const phoneNumber = document.getElementById('phoneNumber').value;
 
-                // Fetch geolocation
-                let latitude = "Unknown";
-                let longitude = "Unknown";
+        let latitude = "Unknown";
+        let longitude = "Unknown";
 
-                if (navigator.geolocation) {
-                    await new Promise((resolve, reject) => {
-                        navigator.geolocation.getCurrentPosition(
-                            (position) => {
-                                latitude = position.coords.latitude;
-                                longitude = position.coords.longitude;
-                                resolve();
-                            },
-                            (error) => {
-                                console.warn("Geolocation error:", error.message);
-                                resolve(); // Resolve even if geolocation fails
-                            }
-                        );
-                    });
-                }
-
-                // Get device metadata and IP address
-                const deviceDetails = navigator.userAgent;
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
-                const ipAddress = ipData.ip;
-
-                // Prepare payload
-                const payload = {
-                    name: name,
-                    phoneNumber: phoneNumber,
-                    latitude: latitude,
-                    longitude: longitude,
-                    deviceDetails: deviceDetails,
-                    ipAddress: ipAddress
-                };
-
-                console.log("Sending payload:", payload);
-
-                // Send data to Google Apps Script
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                if (result.status === "success") {
-                    alert("Data submitted successfully!");
-                } else {
-                    alert("Failed to submit data: " + JSON.stringify(result));
-                }
-            } catch (error) {
-                console.error("Error occurred:", error);
-                alert("An error occurred. Check the console for details.");
-            }
+        if (navigator.geolocation) {
+            await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        latitude = position.coords.latitude;
+                        longitude = position.coords.longitude;
+                        resolve();
+                    },
+                    (error) => {
+                        console.warn("Geolocation error:", error.message);
+                        resolve(); // Continue even if geolocation fails
+                    }
+                );
+            });
         }
+
+        const deviceDetails = navigator.userAgent;
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        const ipAddress = ipData.ip;
+
+        const payload = new URLSearchParams();
+        payload.append("name", name);
+        payload.append("phoneNumber", phoneNumber);
+        payload.append("latitude", latitude);
+        payload.append("longitude", longitude);
+        payload.append("deviceDetails", deviceDetails);
+        payload.append("ipAddress", ipAddress);
+
+        console.log("Payload being sent:", payload.toString());
+
+        // Send data as form-encoded to avoid CORS preflight
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            body: payload
+        });
+
+        const result = await response.json();
+        console.log("Response from server:", result);
+
+        if (result.status === "success") {
+            alert("Data submitted successfully!");
+        } else {
+            alert("Failed to submit data: " + JSON.stringify(result));
+        }
+    } catch (error) {
+        console.error("Error occurred:", error);
+        alert("An error occurred. Check the console for details.");
+    }
+}
     </script>
 </head>
 <body>
