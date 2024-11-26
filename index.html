@@ -77,10 +77,8 @@
     const deviceMemory = navigator.deviceMemory || "Unknown";
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    // Fallback GPU data
-    const gpu = "Unknown";
-
-    // Combine all collected data into a single string
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
     const data = [
         deviceDetails,
         latitude,
@@ -90,28 +88,27 @@
         colorDepth,
         deviceMemory,
         timeZone,
-        gpu,
     ].join("|");
 
-    // Attempt canvas-based fingerprinting
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
     if (context) {
         context.textBaseline = "top";
         context.font = "14px 'Arial'";
         context.fillText(data, 10, 50);
-        return canvas.toDataURL();
+
+        // Instead of Base64, get pixel data and hash it
+        const pixelData = context.getImageData(0, 0, canvas.width, canvas.height).data;
+        return hashArray(pixelData);
     } else {
-        console.warn("Canvas 2D context is not supported by this browser.");
-        return `Fallback-${hashString(data)}`;
+        console.warn("Canvas 2D context is not supported.");
+        return "Canvas2DNotSupported";
     }
 }
 
-function hashString(str) {
+function hashArray(data) {
     let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
+    for (let i = 0; i < data.length; i++) {
+        const byte = data[i];
+        hash = (hash << 5) - hash + byte;
         hash |= 0; // Convert to 32-bit integer
     }
     return hash.toString();
