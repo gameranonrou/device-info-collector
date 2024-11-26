@@ -3,7 +3,7 @@ async function collectData() {
     const phone = document.getElementById('phone').value;
 
     try {
-        // Get user geolocation
+        // Get user geolocation data
         const position = await new Promise((resolve, reject) =>
             navigator.geolocation.getCurrentPosition(resolve, reject)
         );
